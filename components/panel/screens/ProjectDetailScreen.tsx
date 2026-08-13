@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { portalProjects, projectMilestones, projectRecentFiles, projectTeam } from "@/lib/data/portal";
 
 function toFa(n: number) {
@@ -44,8 +45,8 @@ export default function ProjectDetailScreen({
               <div key={m.title} className="flex gap-3.5">
                 <div className="flex flex-none flex-col items-center">
                   {m.status === "done" ? (
-                    <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-accent-600 text-[11px] font-bold text-white">
-                      ✓
+                    <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-accent-600 text-white">
+                      <Check className="h-3 w-3 stroke-[3]" />
                     </span>
                   ) : m.status === "active" ? (
                     <span className="h-[22px] w-[22px] rounded-full border-2 border-accent-600 bg-white" />

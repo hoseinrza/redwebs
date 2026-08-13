@@ -3,10 +3,7 @@
 import Section from "@/components/Section";
 import Button from "@/components/Button";
 import { useCart } from "@/lib/cart-context";
-
-function formatToman(amount: number) {
-  return `${amount.toLocaleString("fa-IR")} تومان`;
-}
+import { formatPrice, toPersianDigits } from "@/lib/format";
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, totalPrice } = useCart();
@@ -37,7 +34,7 @@ export default function CartPage() {
             <div key={item.slug} className="flex flex-wrap items-center justify-between gap-4 p-6">
               <div>
                 <h3 className="font-semibold text-ink-900">{item.name}</h3>
-                <p className="mt-1 text-sm text-ink-500">{item.priceLabel}</p>
+                <p className="mt-1 text-sm text-ink-500">{toPersianDigits(item.priceLabel)}</p>
               </div>
 
               <div className="flex items-center gap-4">
@@ -51,7 +48,7 @@ export default function CartPage() {
                     −
                   </button>
                   <span className="w-8 text-center text-sm font-medium text-ink-900">
-                    {item.quantity}
+                    {toPersianDigits(item.quantity)}
                   </span>
                   <button
                     type="button"
@@ -64,7 +61,7 @@ export default function CartPage() {
                 </div>
 
                 <p className="w-32 text-end text-sm font-semibold text-ink-900">
-                  {formatToman(item.price * item.quantity)}
+                  {formatPrice(item.price * item.quantity)}
                 </p>
 
                 <button
@@ -84,7 +81,7 @@ export default function CartPage() {
 
         <div className="mt-6 flex items-center justify-between rounded-2xl bg-ink-50 px-6 py-5">
           <p className="font-semibold text-ink-900">جمع کل (تخمینی)</p>
-          <p className="text-lg font-bold text-ink-900">{formatToman(totalPrice)}</p>
+          <p className="text-lg font-bold text-ink-900">{formatPrice(totalPrice)}</p>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row-reverse">

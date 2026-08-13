@@ -16,7 +16,19 @@ function validate(data: Partial<ContactFormData>): FormErrors {
     errors.message = "پیام باید حداقل ۱۰ کاراکتر باشه.";
   }
 
-  if (data.serviceInterest !== "استاندارد" && data.serviceInterest !== "اختصاصی") {
+  const validInterests = [
+    "وردپرس",
+    "کدنویسی اختصاصی",
+    "مشاوره و بررسی هر دو",
+    "استاندارد",
+    "اختصاصی",
+    "سفارش پروژه خاص و وب‌اپلیکیشن",
+    "طراحی پلتفرم / پرتال سازمانی",
+    "بازطراحی و ارتقای سرعت",
+    "ایده استارتاپی و SaaS",
+  ];
+
+  if (!data.serviceInterest || !validInterests.includes(data.serviceInterest)) {
     errors.serviceInterest = "نوع خدمات رو انتخاب کنید.";
   }
 

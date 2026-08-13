@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import PathsSection from "@/components/PathsSection";
 import ServicesGrid from "@/components/ServicesGrid";
 import PortfolioPreview from "@/components/PortfolioPreview";
+import PackagesPreview from "@/components/PackagesPreview";
 import InsightsSection from "@/components/InsightsSection";
 import StatsBar from "@/components/StatsBar";
 import CtaBanner from "@/components/CtaBanner";
@@ -13,9 +14,11 @@ export default function Home() {
       <PathsSection />
       <ServicesGrid />
       <PortfolioPreview />
+      <PackagesPreview />
       <InsightsSection />
       <StatsBar />
       <CtaBanner />
     </>
   );
 }
+

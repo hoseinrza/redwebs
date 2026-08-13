@@ -1,73 +1,73 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import Container from "@/components/Container";
+import BlogPostClient from "@/components/BlogPostClient";
 import { blogPosts, getBlogPostBySlug } from "@/lib/data/blog-posts";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Metadata {
   const post = getBlogPostBySlug(params.slug);
   if (!post) return {};
   return {
-    title: post.title,
+    title: `${post.title} | وبلاگ ردوبز`,
     description: post.excerpt,
   };
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+export default function BlogPostPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const post = getBlogPostBySlug(params.slug);
   if (!post) notFound();
 
+  const relatedPosts = blogPosts.filter((p) => p.slug !== post.slug);
+
   return (
-    <div className="py-16 md:py-20">
-      <Container>
-        <div className="mx-auto max-w-2xl">
-          <Link href="/blog" className="text-sm font-medium text-accent-600 hover:underline">
-            ← بازگشت به وبلاگ
-          </Link>
-
-          <p className="mt-6 text-xs font-semibold tracking-wide text-accent-600">{post.category}</p>
-          <h1 className="mt-2 font-display text-3xl text-ink-900 md:text-4xl">{post.title}</h1>
-
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-ink-500">
-            <span>{post.date}</span>
-            <span>·</span>
-            <span>{post.readingTime}</span>
-            <span>·</span>
-            <span>{post.author}</span>
-          </div>
-
-          <div className="relative mt-8 aspect-[16/8] overflow-hidden rounded-[22px]" style={{ background: post.gradient }}>
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage:
-                  "linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px)",
-                backgroundSize: "44px 44px",
-              }}
-            />
-          </div>
-
-          <div className="mt-10 space-y-5">
-            {post.content.map((paragraph, i) => (
-              <p key={i} className="leading-loose text-ink-700">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <span key={tag} className="rounded-full bg-ink-50 px-2.5 py-1 text-xs text-ink-600">
-                {tag}
+    <>
+      {/* Breadcrumb Header Bar */}
+      <div className="bg-ink-50/60 border-b border-ink-150/70 py-4">
+        <Container>
+          <nav className="flex items-center justify-between gap-2 text-xs font-medium text-ink-500">
+            <div className="flex items-center gap-2 truncate">
+              <Link href="/" className="hover:text-ink-950 transition-colors">
+                صفحه اصلی
+              </Link>
+              <span>/</span>
+              <Link href="/blog" className="hover:text-ink-950 transition-colors">
+                وبلاگ
+              </Link>
+              <span>/</span>
+              <span className="text-ink-950 font-bold truncate max-w-[200px] sm:max-w-md">
+                {post.title}
               </span>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            <Link
+              href="/blog"
+              className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-accent-600 hover:text-accent-700 underline underline-offset-4"
+            >
+              <ArrowRight className="h-3.5 w-3.5" />
+              <span>همه مقالات</span>
+            </Link>
+          </nav>
+        </Container>
+      </div>
+
+      {/* Main Container */}
+      <Container className="py-10 sm:py-14">
+        <BlogPostClient post={post} relatedPosts={relatedPosts} />
       </Container>
-    </div>
+    </>
   );
 }

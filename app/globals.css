@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Ensure Persian numeral glyph substitution is active where supported */
+  html, body {
+    font-feature-settings: "ss01" on, "numr" on;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

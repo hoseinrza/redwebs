@@ -6,15 +6,12 @@ import Section from "@/components/Section";
 import Button from "@/components/Button";
 import { useCart } from "@/lib/cart-context";
 import { ApiResponse, OrderFormData } from "@/lib/types";
+import { formatPrice, toPersianDigits } from "@/lib/format";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 const inputClasses =
   "min-h-[44px] w-full rounded-xl border border-ink-200 bg-white px-3.5 text-sm text-ink-950 transition-colors duration-200 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-100";
-
-function formatToman(amount: number) {
-  return `${amount.toLocaleString("fa-IR")} تومان`;
-}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -160,17 +157,17 @@ export default function CheckoutPage() {
               <div key={item.slug} className="flex items-center justify-between p-5 text-sm">
                 <div>
                   <p className="font-medium text-ink-900">{item.name}</p>
-                  <p className="text-ink-500">تعداد: {item.quantity}</p>
+                  <p className="text-ink-500">تعداد: {toPersianDigits(item.quantity)}</p>
                 </div>
                 <p className="font-semibold text-ink-900">
-                  {formatToman(item.price * item.quantity)}
+                  {formatPrice(item.price * item.quantity)}
                 </p>
               </div>
             ))}
           </div>
           <div className="mt-4 flex items-center justify-between rounded-xl bg-ink-50 px-5 py-4">
             <p className="font-semibold text-ink-900">جمع کل (تخمینی)</p>
-            <p className="text-lg font-bold text-ink-900">{formatToman(totalPrice)}</p>
+            <p className="text-lg font-bold text-ink-900">{formatPrice(totalPrice)}</p>
           </div>
         </div>
       </div>

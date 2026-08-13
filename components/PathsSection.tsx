@@ -1,235 +1,150 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { Globe, Zap, Check, ArrowLeft } from "lucide-react";
+import Container from "@/components/Container";
 import DashEyebrow from "@/components/DashEyebrow";
 
-const standardFeatures = [
-  "سایت‌های شرکتی و کسب‌وکاری",
-  "صفحات خدمات و لندینگ‌پیج",
-  "فروشگاه‌های اینترنتی",
-  "پیاده‌سازی روی وردپرس",
+const wpFeatures = [
+  "راه‌اندازی سریع و اقتصادی با وردپرس و ووکامرس",
+  "پنل مدیریت محتوای ساده و فارسی برای شما و همکارانتان",
+  "طراحی سفارشی بدون قالب‌های سنگین آماده",
+  "امکان اضافه کردن افزونه‌های مختلف در آینده",
+  "تحویل سریع در ۱ تا ۳ هفته",
 ];
 
 const customFeatures = [
-  "پنل و داشبورد اختصاصی",
-  "سیستم رزرو و مدیریت سفارش",
-  "اتوماسیون فرآیندهای کسب‌وکار",
-  "API و یکپارچه‌سازی اختصاصی",
+  "کدنویسی تمیز فرانت‌اند و بک‌اند با Next.js 14 و TypeScript",
+  "سرعت بارگذاری فوق‌العاده زیر ۱ ثانیه (Lighthouse 100)",
+  "امنیت حداکثری و نفوذناپذیر در برابر باگ‌های افزونه‌ها",
+  "ساختار کامپوننت‌محور و انعطاف نامحدود در طراحی UI/UX",
+  "مناسب سامانه‌های سازمانی، داشبوردها و پلتفرم‌های پرترافیک",
 ];
 
-const steps = ["انتخاب", "طراحی", "توسعه", "لانچ"];
-
 export default function PathsSection() {
-  const [stdHover, setStdHover] = useState(false);
-  const [stdStep, setStdStep] = useState(0);
-  const [custHover, setCustHover] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (!stdHover) return;
-    timerRef.current = setInterval(() => {
-      setStdStep((s) => (s < 3 ? s + 1 : 0));
-    }, 900);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [stdHover]);
-
-  function handleStdEnter() {
-    setStdStep(0);
-    setStdHover(true);
-  }
-  function handleStdLeave() {
-    setStdHover(false);
-    setStdStep(0);
-  }
+  const [activeHover, setActiveHover] = useState<"wp" | "custom" | null>(null);
 
   return (
-    <section className="py-20 md:py-28 lg:py-[120px]">
-      <div className="mx-auto max-w-[1300px] px-5 sm:px-8 lg:px-14">
+    <section className="py-20 md:py-28 lg:py-[110px]" id="paths">
+      <Container>
         <div className="max-w-xl">
-          <DashEyebrow>انتخاب مسیر</DashEyebrow>
-          <h2 className="mt-4 font-display text-3xl leading-[1.3] text-ink-900 md:text-5xl">
-            دو مسیر داریم.
+          <DashEyebrow>انتخاب تکنولوژی پیاده‌سازی</DashEyebrow>
+          <h2 className="mt-3 font-display text-3xl font-extrabold leading-snug text-ink-950 sm:text-4xl md:text-5xl">
+            وردپرس یا کدنویسی اختصاصی؟
             <br />
-            هدفمون یکیه.
+            <span className="text-accent-600">هر دو را به بهترین شکل اجرا می‌کنیم.</span>
           </h2>
-          <p className="mt-5 max-w-md text-base leading-loose text-ink-600">
-            بسته به نیاز، بودجه و میزان سفارشی‌سازی، مسیر مناسب پروژه‌ات رو
-            انتخاب کن.
+          <p className="mt-4 text-base leading-loose text-ink-600">
+            بسته به نوع کسب‌وکار، بودجه و افق رشد مد نظرتان، مسیر مناسب پروژه‌تان را انتخاب کنید. تیم ما در هر دو زمینه تخصص و وسواس فنی دارد.
           </p>
         </div>
 
-        <div className="mt-16 flex flex-wrap items-stretch gap-0 md:flex-nowrap">
-          {/* Standard card */}
+        <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-2">
+          {/* 1. WordPress Path Card */}
           <div
-            onMouseEnter={handleStdEnter}
-            onMouseLeave={handleStdLeave}
-            className="relative z-[2] mt-10 max-w-[440px] flex-1 rounded-3xl border border-ink-150 bg-white p-8 transition-[transform,box-shadow] duration-300 ease-out"
-            style={{
-              transform: stdHover ? "translateY(-6px) rotate(-1deg)" : "rotate(-1deg)",
-              boxShadow: stdHover
-                ? "0 30px 60px -20px rgb(10 10 11 / 0.2)"
-                : "0 1px 2px rgb(10 10 11 / 0.04), 0 16px 32px -16px rgb(10 10 11 / 0.12)",
-            }}
+            onMouseEnter={() => setActiveHover("wp")}
+            onMouseLeave={() => setActiveHover(null)}
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-emerald-200/80 bg-white p-8 sm:p-10 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover"
           >
-            <div className="absolute -top-3.5 right-7 flex gap-2">
-              <span className="rounded-full bg-accent-50 px-3 py-1.5 text-[10.5px] font-bold text-accent-600 shadow-[0_4px_12px_-4px_rgb(196_31_54_/_0.3)]">
-                سریع
+            {/* Tag */}
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200/70">
+                <Globe className="h-3.5 w-3.5 text-emerald-600" />
+                <span>مسیر وردپرس (WordPress)</span>
               </span>
-              <span className="rounded-full bg-ink-950 px-3 py-1.5 text-[10.5px] font-bold text-white">
-                شفاف
-              </span>
+              <span className="text-xs font-bold text-ink-400">سریع و اقتصادی</span>
             </div>
 
-            <p className="mt-3 text-[11px] font-bold tracking-wide text-ink-400">CARD 01</p>
-            <h3 className="mt-2 font-display text-2xl text-ink-900">مسیر استاندارد</h3>
-            <p className="mt-3.5 text-sm leading-loose text-ink-600">
-              برای کسب‌وکارهایی که یک سایت حرفه‌ای، سریع و آماده می‌خواهند؛
-              بدون پیچیدگی اضافه.
-            </p>
+            <div className="mt-6">
+              <h3 className="font-display text-2xl font-bold text-ink-950 sm:text-3xl">
+                طراحی با وردپرس و ووکامرس
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink-600 sm:text-base">
+                مناسب کسب‌وکارهایی که می‌خواهند با هزینه‌ای مناسب و در کمترین زمان ممکن، سایتی زیبا و با پنل مدیریتی آسان برای انتشار مقالات و فروش محصولات داشته باشند.
+              </p>
 
-            <div className="mt-6 flex items-center gap-1.5">
-              {steps.map((step, i) => (
-                <div key={step} className="flex flex-1 items-center gap-1.5 last:flex-none">
-                  <span
-                    className="text-[11px] font-bold transition-colors duration-300"
-                    style={{ color: stdHover && stdStep >= i ? "#c41f36" : "#a1a1aa" }}
-                  >
-                    {step}
-                  </span>
-                  {i < steps.length - 1 && (
-                    <span className="relative h-px flex-1 overflow-hidden bg-ink-150">
-                      <span
-                        className="absolute inset-0 origin-right bg-accent-600 transition-transform duration-500"
-                        style={{
-                          transform: `scaleX(${stdHover && stdStep >= i + 1 ? 1 : 0})`,
-                        }}
-                      />
+              <div className="mt-7 space-y-3 border-t border-ink-100 pt-6">
+                {wpFeatures.map((item) => (
+                  <div key={item} className="flex items-center gap-2.5 text-xs sm:text-sm text-ink-700">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">
+                      <Check className="h-3 w-3" />
                     </span>
-                  )}
-                </div>
-              ))}
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-2.5 border-t border-ink-100 pt-5">
-              {standardFeatures.map((item) => (
-                <div key={item} className="flex items-center gap-2 text-[13px] text-ink-700">
-                  <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-600" />
-                  {item}
-                </div>
-              ))}
+            <div className="mt-8 border-t border-ink-100 pt-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-[11px] text-ink-400">شروع تعرفه از:</span>
+                <p className="font-display text-lg font-black text-emerald-800">۸,۵۰۰,۰۰۰ تومان</p>
+              </div>
+              <Link
+                href="/services?tech=wordpress"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition-transform group-hover:-translate-x-1 hover:bg-emerald-800"
+              >
+                <span>مشاهده پکیج‌های وردپرس</span>
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
             </div>
-
-            <Link
-              href="/services"
-              className="mt-7 inline-flex items-center gap-2 border-b-2 border-ink-950 py-1 text-sm font-bold text-ink-950 transition-transform duration-200"
-              style={{ transform: stdHover ? "translateX(-4px)" : "translateX(0)" }}
-            >
-              این مسیر رو می‌خوام ↗
-            </Link>
           </div>
 
-          {/* Divider */}
-          <div className="relative z-[3] hidden w-16 flex-shrink-0 flex-col items-center justify-center gap-3 md:flex">
-            <span className="text-[11px] font-medium text-ink-500 [writing-mode:vertical-rl]">
-              ساده شروع کن
-            </span>
-            <div className="h-6 w-px bg-ink-200" />
-            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent-50 text-[11px] font-bold text-accent-600">
-              یا
-            </span>
-            <div className="h-6 w-px bg-ink-200" />
-            <span className="text-[11px] font-medium text-ink-500 [writing-mode:vertical-rl]">
-              از صفر بساز
-            </span>
-          </div>
-
-          {/* Custom card */}
+          {/* 2. Custom Coding Path Card */}
           <div
-            onMouseEnter={() => setCustHover(true)}
-            onMouseLeave={() => setCustHover(false)}
-            className="relative z-[2] min-w-0 flex-1 overflow-hidden rounded-3xl bg-ink-950 p-9 transition-[transform,box-shadow] duration-300 ease-out"
-            style={{
-              transform: custHover ? "translateY(-8px) rotate(0.5deg)" : "rotate(0.5deg)",
-              boxShadow: custHover
-                ? "0 40px 80px -20px rgb(0 0 0 / 0.5)"
-                : "0 20px 50px -16px rgb(10 10 11 / 0.4)",
-            }}
+            onMouseEnter={() => setActiveHover("custom")}
+            onMouseLeave={() => setActiveHover(null)}
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-ink-950 p-8 sm:p-10 text-white shadow-sign transition-all duration-300 hover:-translate-y-1.5"
           >
-            <div
-              className="pointer-events-none absolute inset-0 opacity-100"
-              style={{
-                backgroundImage:
-                  "linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px)",
-                backgroundSize: "36px 36px",
-              }}
-            />
-            <div
-              className="pointer-events-none absolute -left-14 -top-24 h-64 w-64 rounded-full blur-[70px] transition-[background] duration-300"
-              style={{ background: `rgb(226 55 74 / ${custHover ? 0.28 : 0.15})` }}
-            />
+            {/* Ambient Background Glow */}
+            <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-accent-600/20 blur-[80px]" />
 
-            <span className="relative inline-flex items-center rounded-full border border-white/10 bg-white/[0.08] px-3.5 py-1.5 text-[10.5px] font-bold text-accent-400">
-              برای پروژه‌های خاص
-            </span>
-
-            <p className="relative mt-4 text-[11px] font-bold tracking-wide text-ink-500">CARD 02</p>
-            <h3 className="relative mt-2 font-display text-3xl text-white">مسیر اختصاصی</h3>
-            <p className="relative mt-3.5 max-w-md text-sm leading-loose text-ink-300">
-              برای پروژه‌هایی که نیاز به منطق سفارشی، یکپارچه‌سازی و
-              قابلیت‌های فراتر از یک سایت معمولی دارند.
-            </p>
-
-            <div className="relative my-7 flex h-[70px] items-center gap-4">
-              <span
-                className="h-3.5 w-3.5 flex-shrink-0 rounded-full bg-accent-500 transition-shadow duration-300"
-                style={{ boxShadow: `0 0 0 4px rgb(226 55 74 / ${custHover ? 0.35 : 0.15})` }}
-              />
-              <span
-                className="h-px flex-1 transition-[background] duration-300"
-                style={{
-                  background: `linear-gradient(to left, rgb(226 55 74 / ${custHover ? 1 : 0.25}), rgb(255 255 255 / 0.1))`,
-                }}
-              />
-              <span
-                className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-white transition-opacity duration-300"
-                style={{ opacity: custHover ? 1 : 0.25 }}
-              />
-              <span
-                className="h-px flex-1 transition-[background] duration-300"
-                style={{
-                  background: `linear-gradient(to left, rgb(226 55 74 / ${custHover ? 1 : 0.25}), rgb(255 255 255 / 0.1))`,
-                }}
-              />
-              <span
-                className="h-3.5 w-3.5 flex-shrink-0 rounded-full bg-accent-500 transition-shadow duration-300"
-                style={{ boxShadow: `0 0 0 4px rgb(226 55 74 / ${custHover ? 0.35 : 0.15})` }}
-              />
-              <span className="h-px flex-1 bg-white/10" />
-              <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full bg-white opacity-60" />
+            {/* Tag */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-bold text-accent-300 border border-white/10 backdrop-blur-md">
+                <Zap className="h-3.5 w-3.5 text-accent-400" />
+                <span>مسیر کدنویسی اختصاصی (Next.js)</span>
+              </span>
+              <span className="text-xs font-bold text-ink-400">نهایت سرعت و پرفورمنس</span>
             </div>
 
-            <div className="relative grid grid-cols-1 gap-2.5 border-t border-white/[0.08] pt-5 sm:grid-cols-2">
-              {customFeatures.map((item) => (
-                <div key={item} className="flex items-center gap-2 text-[13px] text-ink-200">
-                  <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-400" />
-                  {item}
-                </div>
-              ))}
+            <div className="relative z-10 mt-6">
+              <h3 className="font-display text-2xl font-bold text-white sm:text-3xl">
+                توسعه اختصاصی با استک مدرن
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink-300 sm:text-base">
+                مناسب برندهای پیشرو، سامانه‌های پرترافیک، استارتاپ‌ها و سازمان‌هایی که نیاز به انعطاف ۱۰۰ درصدی، سرعت لود زیر ۱ ثانیه و امنیت بی‌نقص دارند.
+              </p>
+
+              <div className="mt-7 space-y-3 border-t border-white/10 pt-6">
+                {customFeatures.map((item) => (
+                  <div key={item} className="flex items-center gap-2.5 text-xs sm:text-sm text-ink-200">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-600/20 text-xs font-bold text-accent-400">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <Link
-              href="/services"
-              className="relative mt-7 inline-flex items-center gap-2 rounded-xl bg-accent-600 px-6 py-3.5 text-sm font-bold text-white shadow-[0_14px_40px_-10px_rgb(196_31_54_/_0.5)] transition-transform duration-200"
-              style={{ transform: custHover ? "translateX(-4px)" : "translateX(0)" }}
-            >
-              پروژه اختصاصی دارم ↗
-            </Link>
+            <div className="relative z-10 mt-8 border-t border-white/10 pt-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-[11px] text-ink-400">شروع تعرفه از:</span>
+                <p className="font-display text-lg font-black text-accent-400">۱۴,۰۰۰,۰۰۰ تومان</p>
+              </div>
+              <Link
+                href="/services?tech=custom"
+                className="inline-flex items-center gap-2 rounded-xl bg-accent-600 px-6 py-3 text-sm font-bold text-white shadow-glow transition-transform group-hover:-translate-x-1 hover:bg-accent-500"
+              >
+                <span>مشاهده پکیج‌های کدنویسی</span>
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

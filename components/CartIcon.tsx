@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
+import { toPersianDigits } from "@/lib/format";
 
 export default function CartIcon() {
   const { totalItems } = useCart();
@@ -21,7 +22,7 @@ export default function CartIcon() {
       </svg>
       {totalItems > 0 && (
         <span className="absolute -top-1 -end-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent-600 px-1 text-[10px] font-bold leading-none text-white">
-          {totalItems}
+          {toPersianDigits(totalItems)}
         </span>
       )}
     </Link>
