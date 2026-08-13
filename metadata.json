@@ -1,0 +1,6 @@
+{
+  "name": "Redwebs Agency",
+  "description": "Professional web design agency website and client portal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

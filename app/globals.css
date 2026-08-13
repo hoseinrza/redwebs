@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900;
+}
+
+::selection {
+  @apply bg-accent-500/20 text-accent-700;
+}
+
+/* Soft neon-tube glow for headline emphasis on dark/dusk sections. */
+.text-glow {
+  text-shadow:
+    0 0 1px rgb(255 255 255 / 0.15),
+    0 0 22px rgb(226 55 74 / 0.55),
+    0 0 60px rgb(226 55 74 / 0.25);
+}
+
+/* Faint painted-metal grain for the dusk hero — restrained, single use. */
+.bg-grain {
+  background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
