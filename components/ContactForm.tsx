@@ -19,7 +19,8 @@ import {
   Flame,
   ArrowLeft,
 } from "lucide-react";
-import { ApiResponse, ServiceInterest } from "@/lib/types";
+import { ServiceInterest } from "@/lib/types";
+import { submitContactForm } from "@/lib/validateForms";
 
 type FormMode = "custom_order" | "quick_inquiry";
 type Status = "idle" | "submitting" | "success" | "error";
@@ -148,29 +149,19 @@ export default function ContactForm() {
       referenceUrl: (form.elements.namedItem("referenceUrl") as HTMLInputElement)?.value || "",
     };
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const result: ApiResponse = await res.json();
+    const result = submitContactForm(payload);
 
-      if (!result.success) {
-        setStatus("error");
-        setFeedback(result.error);
-        return;
-      }
-
-      const randomCode = `RB-${Math.floor(100000 + Math.random() * 900000)}`;
-      setTrackingCode(randomCode);
-      setStatus("success");
-      setFeedback(result.message);
-      form.reset();
-    } catch {
+    if (!result.success) {
       setStatus("error");
-      setFeedback("ارتباط با سرور برقرار نشد. لطفاً اتصال اینترنت خود را بررسی کنید.");
+      setFeedback(result.error);
+      return;
     }
+
+    const randomCode = `RB-${Math.floor(100000 + Math.random() * 900000)}`;
+    setTrackingCode(randomCode);
+    setStatus("success");
+    setFeedback(result.message);
+    form.reset();
   }
 
   if (status === "success") {

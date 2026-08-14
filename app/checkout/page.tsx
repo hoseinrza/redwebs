@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Section from "@/components/Section";
 import Button from "@/components/Button";
 import { useCart } from "@/lib/cart-context";
-import { ApiResponse, OrderFormData } from "@/lib/types";
+import { OrderFormData } from "@/lib/types";
 import { formatPrice, toPersianDigits } from "@/lib/format";
+import { submitOrderForm } from "@/lib/validateForms";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -27,7 +28,7 @@ export default function CheckoutPage() {
     return () => clearTimeout(timeout);
   }, [status, router]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("submitting");
     setFeedback("");
@@ -42,31 +43,21 @@ export default function CheckoutPage() {
       items,
     };
 
-    try {
-      const res = await fetch("/api/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const result: ApiResponse = await res.json();
+    const result = submitOrderForm(payload);
 
-      if (!result.success) {
-        setStatus("error");
-        setFeedback(result.error);
-        return;
-      }
-
-      setStatus("success");
-      setFeedback(result.message);
-      window.localStorage.setItem(
-        "redwebs-customer",
-        JSON.stringify({ name: payload.name, email: payload.email, phone: payload.phone })
-      );
-      clearCart();
-    } catch {
+    if (!result.success) {
       setStatus("error");
-      setFeedback("ارتباط با سرور برقرار نشد. اتصال اینترنتتون رو چک کنید.");
+      setFeedback(result.error);
+      return;
     }
+
+    setStatus("success");
+    setFeedback(result.message);
+    window.localStorage.setItem(
+      "redwebs-customer",
+      JSON.stringify({ name: payload.name, email: payload.email, phone: payload.phone })
+    );
+    clearCart();
   }
 
   if (status === "success") {

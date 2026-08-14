@@ -5,6 +5,8 @@ import { packages } from "@/lib/data/packages";
 
 const siteUrl = "https://redwebs.ir";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: siteUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
