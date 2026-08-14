@@ -17,6 +17,7 @@ import {
   Eye,
   EyeOff,
   Clock,
+  Terminal,
 } from "lucide-react";
 
 type AuthMethod = "otp" | "password";
@@ -198,6 +199,16 @@ export default function AuthForm() {
         router.push("/panel");
       }, 800);
     }, 500);
+  };
+
+  const handleAdminLogin = () => {
+    setStatus("submitting");
+    setTimeout(() => {
+      setStatus("success");
+      setTimeout(() => {
+        router.push("/admin");
+      }, 600);
+    }, 400);
   };
 
   const isSubmitting = status === "submitting";
@@ -664,14 +675,36 @@ export default function AuthForm() {
               </div>
               <div>
                 <span className="text-xs font-bold text-ink-950 group-hover:text-accent-800 block">
-                  ورود سریع آزمایشی (بدون نیاز به ثبت‌نام)
+                  ورود سریع کارفرما (بدون نیاز به ثبت‌نام)
                 </span>
                 <span className="text-[11px] text-ink-500 block mt-0.5">
-                  مشاهده آنی داشبورد پروژه، تیکت‌ها و فاکتورها به عنوان کارفرما
+                  مشاهده آنی داشبورد پروژه، اسپرینت‌ها، تیکت‌ها و فاکتورها
                 </span>
               </div>
             </div>
             <ArrowLeft className="h-4 w-4 text-accent-600 transition-transform group-hover:-translate-x-1 shrink-0" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAdminLogin}
+            disabled={isSubmitting}
+            className="w-full flex items-center justify-between rounded-2xl border border-ink-800 bg-ink-950 p-3.5 text-right transition-all hover:bg-ink-900 group shadow-xs text-white"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-600 text-white shadow-xs">
+                <Terminal className="h-4 w-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-white group-hover:text-accent-300 block">
+                  ورود به پنل تیم فنی و ادمین ارشد (Dev & CTO)
+                </span>
+                <span className="text-[11px] text-ink-400 block mt-0.5">
+                  مانیتورینگ سرورها، کانبان اسپرینت‌ها، استقرار CI/CD و مدیریت مشتریان
+                </span>
+              </div>
+            </div>
+            <ArrowLeft className="h-4 w-4 text-accent-400 transition-transform group-hover:-translate-x-1 shrink-0" />
           </button>
         </div>
 

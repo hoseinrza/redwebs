@@ -12,15 +12,17 @@ import InvoicesScreen from "@/components/panel/screens/InvoicesScreen";
 import FilesScreen from "@/components/panel/screens/FilesScreen";
 import NotificationsScreen from "@/components/panel/screens/NotificationsScreen";
 import SettingsScreen from "@/components/panel/screens/SettingsScreen";
+import NewProjectModal, { NewProjectData } from "@/components/panel/NewProjectModal";
 
 const DEFAULT_CLIENT = { name: "آرمان محمدی", email: "arman@example.com", phone: "۰۹۱۲ ۳۴۵ ۶۷۸۹" };
-const UNREAD_COUNT = 5;
+const UNREAD_COUNT = 3;
 
 export default function PortalShell() {
   const [screen, setScreen] = useState<PortalScreen>("dashboard");
   const [detailId, setDetailId] = useState("aramesh");
   const [client, setClient] = useState(DEFAULT_CLIENT);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -43,8 +45,20 @@ export default function PortalShell() {
     setScreen("detail");
   }
 
+  function handleNewProjectSubmit(data: NewProjectData) {
+    // Project submitted successfully
+    try {
+      const existing = window.localStorage.getItem("redwebs-custom-projects");
+      const list = existing ? JSON.parse(existing) : [];
+      list.unshift({ ...data, createdAt: new Date().toISOString() });
+      window.localStorage.setItem("redwebs-custom-projects", JSON.stringify(list));
+    } catch {
+      // fallback
+    }
+  }
+
   return (
-    <div dir="rtl" className="flex min-h-screen bg-ink-50 text-ink-900">
+    <div dir="rtl" className="flex min-h-screen bg-ink-50 text-ink-900 font-sans">
       <Sidebar
         active={screen}
         onNavigate={setScreen}
@@ -57,7 +71,7 @@ export default function PortalShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           screen={screen}
-          onNewProject={() => setScreen("projects")}
+          onNewProject={() => setIsNewProjectModalOpen(true)}
           onNotificationsClick={() => setScreen("notifications")}
           onMenuClick={() => setSidebarOpen(true)}
         />
@@ -69,16 +83,33 @@ export default function PortalShell() {
             onGoInvoices={() => setScreen("invoices")}
           />
         )}
-        {screen === "projects" && <ProjectsScreen onOpenProject={openProject} />}
+        {screen === "projects" && (
+          <ProjectsScreen
+            onOpenProject={openProject}
+            onNewProject={() => setIsNewProjectModalOpen(true)}
+          />
+        )}
         {screen === "detail" && (
           <ProjectDetailScreen projectId={detailId} onBack={() => setScreen("projects")} />
         )}
         {screen === "messages" && <MessagesScreen />}
         {screen === "invoices" && <InvoicesScreen />}
         {screen === "files" && <FilesScreen />}
-        {screen === "notifications" && <NotificationsScreen />}
+        {screen === "notifications" && (
+          <NotificationsScreen
+            onNavigate={(s) => setScreen(s as PortalScreen)}
+            onOpenProject={openProject}
+          />
+        )}
         {screen === "settings" && <SettingsScreen client={client} />}
       </div>
+
+      {/* Global New Project Wizard Modal */}
+      <NewProjectModal
+        isOpen={isNewProjectModalOpen}
+        onClose={() => setIsNewProjectModalOpen(false)}
+        onSubmit={handleNewProjectSubmit}
+      />
     </div>
   );
 }

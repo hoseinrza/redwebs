@@ -64,7 +64,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-vazir)", "Tahoma", "system-ui", "sans-serif"],
-        display: ["var(--font-lalezar)", "Tahoma", "system-ui", "sans-serif"],
+        display: ["var(--font-lalezar)", "var(--font-vazir)", "Tahoma", "system-ui", "sans-serif"],
+        mono: ["var(--font-vazir)", "ui-monospace", "monospace"],
       },
       boxShadow: {
         soft: "0 4px 24px -6px rgb(16 13 10 / 0.1)",

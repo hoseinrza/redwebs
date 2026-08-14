@@ -1,4 +1,5 @@
-import { Search, Bell, Plus, Menu } from "lucide-react";
+import Link from "next/link";
+import { Search, Bell, Plus, Menu, Terminal, ArrowRightLeft } from "lucide-react";
 import { PortalScreen } from "@/components/panel/types";
 
 const titles: Record<PortalScreen, [string, string]> = {
@@ -61,6 +62,14 @@ export default function TopBar({
           <Bell className="h-4 w-4" />
           <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent-600 ring-2 ring-white animate-pulse" />
         </button>
+
+        <Link
+          href="/admin"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-2xl border border-ink-200 bg-white px-3.5 py-2 text-xs font-bold text-ink-800 shadow-2xs hover:bg-ink-50 hover:border-ink-300 transition-all"
+        >
+          <Terminal className="h-3.5 w-3.5 text-accent-600" />
+          <span>پنل تیم توسعه و ادمین</span>
+        </Link>
 
         <button
           type="button"

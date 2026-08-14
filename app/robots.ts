@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/panel", "/cart", "/checkout"],
+      disallow: ["/panel", "/admin", "/cart", "/checkout"],
     },
     sitemap: "https://redwebs.ir/sitemap.xml",
   };

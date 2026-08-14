@@ -28,7 +28,7 @@ export default function Header() {
     };
   }, [open]);
 
-  if (pathname.startsWith("/panel")) return null;
+  if (pathname.startsWith("/panel") || pathname.startsWith("/admin")) return null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink-150 bg-[#fdfcfb]/90 backdrop-blur">

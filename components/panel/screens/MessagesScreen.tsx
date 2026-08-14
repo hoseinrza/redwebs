@@ -10,6 +10,7 @@ import {
   CheckCheck,
   Check,
   Phone,
+  PhoneCall,
   Video,
   FileText,
   Sparkles,
@@ -24,9 +25,14 @@ import {
   MessageSquare,
   Layers,
   ArrowUpLeft,
+  Calendar,
+  Headphones,
+  ExternalLink,
+  VideoOff,
 } from "lucide-react";
 import { portalMessages, portalThreads, PortalThread } from "@/lib/data/portal";
 import { toPersianDigits } from "@/lib/format";
+import CallModal, { CallType } from "@/components/panel/CallModal";
 
 interface MessageItem {
   id?: string;
@@ -40,10 +46,27 @@ interface MessageItem {
     size: string;
     type: "figma" | "pdf" | "image";
   };
+  callMeta?: {
+    type: "audio" | "video" | "meeting" | "callback";
+    duration?: string;
+    platform?: string;
+    link?: string;
+  };
 }
 
 const initialEnrichedMessages: Record<string, MessageItem[]> = {
   team: [
+    {
+      id: "m-0",
+      text: "تماس صوتی آنلاین با مدیر پروژه (نگار رستمی) به پایان رسید.",
+      me: false,
+      time: "۰۹:۴۵",
+      senderName: "سیستم تماس ردوبز",
+      callMeta: {
+        type: "audio",
+        duration: "۰۸:۲۴",
+      },
+    },
     {
       id: "m-1",
       text: "سلام آرمان عزیز، نسخه جدید و تعاملی صفحه اصلی وب‌سایت کلینیک آرامش (Staging v3) روی سرور تست بارگذاری شد. لطفاً بررسی اولیه رو انجام بدید.",
@@ -128,6 +151,7 @@ const initialEnrichedMessages: Record<string, MessageItem[]> = {
 const quickReplies = [
   "طرح استیجینگ تایید است 👍",
   "درخواست جلسه آنلاین هماهنگی 📅",
+  "درخواست تماس تلفنی فوری 📞",
   "فایل‌های تکمیلی رو ارسال کردم 📎",
   "لطفاً زمان تحویل نهایی رو بفرمایید ⏳",
 ];
@@ -141,6 +165,15 @@ export default function MessagesScreen() {
   const [filterCategory, setFilterCategory] = useState<"all" | "projects" | "support">("all");
   const [showInfoSidebar, setShowInfoSidebar] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+
+  // Call Modal State
+  const [callModalConfig, setCallModalConfig] = useState<{
+    isOpen: boolean;
+    type: CallType;
+  }>({
+    isOpen: false,
+    type: "audio",
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -157,9 +190,96 @@ export default function MessagesScreen() {
     setMobileView("chat");
   }
 
+  function startCall(type: CallType) {
+    setCallModalConfig({
+      isOpen: true,
+      type,
+    });
+  }
+
+  function handleCallEnded(summary: { type: "audio" | "video"; duration: string }) {
+    const now = new Date();
+    const currentTime = `${toPersianDigits(now.getHours())}:${toPersianDigits(
+      String(now.getMinutes()).padStart(2, "0")
+    )}`;
+
+    const callMsg: MessageItem = {
+      id: `call-${Date.now()}`,
+      text:
+        summary.type === "video"
+          ? `جلسه ویدیویی آنلاین به مدت ${summary.duration} با موفقیت پایان یافت.`
+          : `تماس صوتی آنلاین به مدت ${summary.duration} پایان یافت.`,
+      me: false,
+      time: currentTime,
+      senderName: "سیستم تماس ردوبز",
+      callMeta: {
+        type: summary.type,
+        duration: summary.duration,
+      },
+    };
+
+    setMessagesState((prev) => ({
+      ...prev,
+      [threadId]: [...(prev[threadId] ?? []), callMsg],
+    }));
+  }
+
+  function handleMeetingScheduled(meeting: {
+    title: string;
+    date: string;
+    time: string;
+    platform: string;
+  }) {
+    const now = new Date();
+    const currentTime = `${toPersianDigits(now.getHours())}:${toPersianDigits(
+      String(now.getMinutes()).padStart(2, "0")
+    )}`;
+
+    const meetMsg: MessageItem = {
+      id: `meet-${Date.now()}`,
+      text: `جلسه آنلاین «${meeting.title}» برای تاریخ ${meeting.date} در ساعت ${meeting.time} بر بستر ${meeting.platform} تنظیم و ثبت شد.`,
+      me: true,
+      time: currentTime,
+      callMeta: {
+        type: "meeting",
+        platform: meeting.platform,
+      },
+    };
+
+    setMessagesState((prev) => ({
+      ...prev,
+      [threadId]: [...(prev[threadId] ?? []), meetMsg],
+    }));
+
+    // Auto PM acknowledgment
+    setTimeout(() => {
+      const pmReply: MessageItem = {
+        id: `pm-reply-${Date.now()}`,
+        text: `درخواست جلسه شما ثبت شد و در تقویم تیم فنی قرار گرفت. لینک ورود به جلسه قبل از موعد برای شما پیامک خواهد شد.`,
+        me: false,
+        time: currentTime,
+        senderName: "نگار رستمی",
+        senderRole: "مدیر پروژه",
+      };
+      setMessagesState((prev) => ({
+        ...prev,
+        [threadId]: [...(prev[threadId] ?? []), pmReply],
+      }));
+    }, 1200);
+  }
+
   function handleSend(customText?: string) {
     const text = (customText || draft).trim();
     if (!text) return;
+
+    // Check if user is asking for call
+    if (text.includes("تماس") || text.includes("جلسه") || text.includes("تلفن")) {
+      if (text.includes("جلسه")) {
+        startCall("schedule");
+      } else {
+        startCall("phone");
+      }
+    }
 
     const now = new Date();
     const currentTime = `${toPersianDigits(now.getHours())}:${toPersianDigits(
@@ -421,14 +541,46 @@ export default function MessagesScreen() {
           </div>
 
           {/* Header Action Tools */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Quick Call Actions Group */}
+            <div className="flex items-center gap-1 bg-ink-100/70 p-1 rounded-2xl border border-ink-200">
+              <button
+                type="button"
+                onClick={() => startCall("audio")}
+                title="برقراری تماس صوتی آنلاین"
+                className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-xl bg-white text-ink-800 text-xs font-bold shadow-xs hover:bg-accent-50 hover:text-accent-700 hover:border-accent-200 transition-all active:scale-95"
+              >
+                <Phone className="h-3.5 w-3.5 text-accent-600" />
+                <span className="hidden md:inline">تماس صوتی</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => startCall("video")}
+                title="شروع جلسه ویدیویی آنلاین (اشتراک تصویر / دمو)"
+                className="flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-xl bg-accent-600 text-white text-xs font-bold shadow-glow hover:bg-accent-700 transition-all active:scale-95"
+              >
+                <Video className="h-3.5 w-3.5" />
+                <span className="hidden md:inline">جلسه ویدیویی</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => startCall("phone")}
+                title="تماس مستقیم تلفنی و درخواست تماس فوری"
+                className="flex items-center justify-center h-8 w-8 rounded-xl bg-white text-ink-700 hover:text-emerald-700 hover:bg-emerald-50 transition-all active:scale-95"
+              >
+                <Headphones className="h-3.5 w-3.5 text-emerald-600" />
+              </button>
+            </div>
+
             <button
               type="button"
-              title="توضیحات و فایل‌های پیوست"
+              title="توضیحات و راه‌های ارتباطی"
               onClick={() => setShowInfoSidebar(!showInfoSidebar)}
               className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
                 showInfoSidebar
-                  ? "bg-accent-600 text-white border-accent-600 shadow-xs"
+                  ? "bg-ink-950 text-white border-ink-950 shadow-xs"
                   : "border-ink-200 bg-white text-ink-600 hover:bg-ink-50 hover:text-ink-950"
               }`}
             >
@@ -448,6 +600,7 @@ export default function MessagesScreen() {
 
           {messages.map((m, idx) => {
             const isMe = m.me;
+            const isCallMsg = !!m.callMeta;
 
             return (
               <div
@@ -465,70 +618,148 @@ export default function MessagesScreen() {
                   </div>
                 )}
 
-                <div
-                  className={`relative max-w-[88%] sm:max-w-[70%] rounded-3xl p-4 text-xs sm:text-sm leading-relaxed shadow-xs transition-all ${
-                    isMe
-                      ? "bg-accent-600 text-white rounded-bl-sm"
-                      : "bg-white text-ink-950 border border-ink-200/80 rounded-br-sm"
-                  }`}
-                >
-                  <p className="whitespace-pre-line">{m.text}</p>
-
-                  {/* Attachment Box if any */}
-                  {m.attachment && (
-                    <div
-                      className={`mt-3 flex items-center justify-between gap-3 rounded-2xl p-3 border transition-colors ${
-                        isMe
-                          ? "bg-white/10 border-white/20 text-white"
-                          : "bg-ink-50 border-ink-200 text-ink-900"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                            isMe ? "bg-white/20 text-white" : "bg-accent-50 text-accent-700"
-                          }`}
-                        >
-                          <FileText className="h-4 w-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-xs font-bold font-mono dir-ltr">
-                            {m.attachment.name}
-                          </p>
-                          <span
-                            className={`text-[10px] ${
-                              isMe ? "text-white/80" : "text-ink-400"
-                            }`}
-                          >
-                            {m.attachment.size}
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        aria-label="دانلود فایل"
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-transform hover:scale-105 ${
-                          isMe
-                            ? "bg-white text-accent-700 shadow-xs"
-                            : "bg-accent-600 text-white shadow-xs"
-                        }`}
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Message Meta (Time & Status) */}
+                {/* Call Event / Meeting Log Card */}
+                {isCallMsg ? (
                   <div
-                    className={`mt-2 flex items-center justify-end gap-1.5 text-[10.5px] font-mono ${
-                      isMe ? "text-accent-100" : "text-ink-400"
+                    className={`rounded-3xl border p-4 shadow-card text-xs space-y-2.5 max-w-[92%] sm:max-w-[75%] ${
+                      m.callMeta?.type === "meeting"
+                        ? "border-accent-200 bg-accent-50/60 ring-1 ring-accent-100"
+                        : "border-ink-200 bg-white"
                     }`}
                   >
-                    <span>{toPersianDigits(m.time || "۱۰:۳۰")}</span>
-                    {isMe && <CheckCheck className="h-3.5 w-3.5 text-accent-200" />}
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
+                          m.callMeta?.type === "video"
+                            ? "bg-accent-600 text-white"
+                            : m.callMeta?.type === "meeting"
+                            ? "bg-sky-600 text-white"
+                            : "bg-emerald-600 text-white"
+                        }`}
+                      >
+                        {m.callMeta?.type === "video" ? (
+                          <Video className="h-5 w-5" />
+                        ) : m.callMeta?.type === "meeting" ? (
+                          <Calendar className="h-5 w-5" />
+                        ) : (
+                          <Phone className="h-5 w-5" />
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-ink-950 text-xs sm:text-sm">
+                            {m.callMeta?.type === "video"
+                              ? "جلسه ویدیویی آنلاین"
+                              : m.callMeta?.type === "meeting"
+                              ? "جلسه آنلاین تنظیم‌شده"
+                              : "تماس صوتی آنلاین"}
+                          </span>
+                          {m.callMeta?.duration && (
+                            <span className="rounded-full bg-ink-100 px-2 py-0.5 text-[10.5px] font-mono font-bold text-ink-800">
+                              {m.callMeta.duration}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11.5px] text-ink-600 mt-0.5 leading-relaxed">
+                          {m.text}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-ink-100 pt-2.5 text-[10.5px]">
+                      <span className="text-ink-400 font-mono">
+                        ثبت رویداد: {toPersianDigits(m.time || "۱۰:۳۰")}
+                      </span>
+
+                      {m.callMeta?.type === "meeting" ? (
+                        <button
+                          type="button"
+                          onClick={() => startCall("video")}
+                          className="inline-flex items-center gap-1 text-accent-700 font-bold hover:underline"
+                        >
+                          <span>ورود به اتاق جلسه</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => startCall(m.callMeta?.type === "video" ? "video" : "audio")}
+                          className="inline-flex items-center gap-1 text-accent-700 font-bold hover:underline"
+                        >
+                          <span>برقراری تماس مجدد</span>
+                          <ArrowUpLeft className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  /* Standard Chat Bubble */
+                  <div
+                    className={`relative max-w-[88%] sm:max-w-[70%] rounded-3xl p-4 text-xs sm:text-sm leading-relaxed shadow-xs transition-all ${
+                      isMe
+                        ? "bg-accent-600 text-white rounded-bl-sm"
+                        : "bg-white text-ink-950 border border-ink-200/80 rounded-br-sm"
+                    }`}
+                  >
+                    <p className="whitespace-pre-line">{m.text}</p>
+
+                    {/* Attachment Box if any */}
+                    {m.attachment && (
+                      <div
+                        className={`mt-3 flex items-center justify-between gap-3 rounded-2xl p-3 border transition-colors ${
+                          isMe
+                            ? "bg-white/10 border-white/20 text-white"
+                            : "bg-ink-50 border-ink-200 text-ink-900"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                              isMe ? "bg-white/20 text-white" : "bg-accent-50 text-accent-700"
+                            }`}
+                          >
+                            <FileText className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-bold font-mono dir-ltr">
+                              {m.attachment.name}
+                            </p>
+                            <span
+                              className={`text-[10px] ${
+                                isMe ? "text-white/80" : "text-ink-400"
+                              }`}
+                            >
+                              {m.attachment.size}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          aria-label="دانلود فایل"
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-transform hover:scale-105 ${
+                            isMe
+                              ? "bg-white text-accent-700 shadow-xs"
+                              : "bg-accent-600 text-white shadow-xs"
+                          }`}
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Message Meta (Time & Status) */}
+                    <div
+                      className={`mt-2 flex items-center justify-end gap-1.5 text-[10.5px] font-mono ${
+                        isMe ? "text-accent-100" : "text-ink-400"
+                      }`}
+                    >
+                      <span>{toPersianDigits(m.time || "۱۰:۳۰")}</span>
+                      {isMe && <CheckCheck className="h-3.5 w-3.5 text-accent-200" />}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -656,6 +887,50 @@ export default function MessagesScreen() {
             </div>
           </div>
 
+          {/* Quick Communication & Call Center in Sidebar */}
+          <div className="space-y-2.5 pt-3 border-t border-ink-150">
+            <span className="text-xs font-bold text-ink-800 flex items-center justify-between">
+              <span>مرکز ارتباط و تماس</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            </span>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => startCall("audio")}
+                className="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border border-ink-200 bg-ink-50/60 hover:bg-accent-50 hover:border-accent-300 text-ink-800 hover:text-accent-700 transition-all text-center group"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-ink-200 group-hover:border-accent-400 group-hover:bg-accent-600 group-hover:text-white transition-colors">
+                  <Phone className="h-3.5 w-3.5" />
+                </div>
+                <span className="text-[11px] font-bold">تماس صوتی</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => startCall("video")}
+                className="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border border-ink-200 bg-ink-50/60 hover:bg-accent-50 hover:border-accent-300 text-ink-800 hover:text-accent-700 transition-all text-center group"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-ink-200 group-hover:border-accent-400 group-hover:bg-accent-600 group-hover:text-white transition-colors">
+                  <Video className="h-3.5 w-3.5" />
+                </div>
+                <span className="text-[11px] font-bold">جلسه تصویری</span>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => startCall("phone")}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-800 transition-all text-xs font-bold"
+            >
+              <span className="flex items-center gap-2">
+                <Headphones className="h-4 w-4 text-emerald-600" />
+                <span>خط مستقیم پشتیبانی تلفنی</span>
+              </span>
+              <span className="font-mono text-[11px] text-emerald-700 dir-ltr">۰۲۱-۸۸۴۵۰۰۰۰</span>
+            </button>
+          </div>
+
           {/* Pinned Files in this Chat */}
           <div className="space-y-2.5 pt-2 border-t border-ink-150">
             <span className="text-xs font-bold text-ink-800 block">فایل‌های اشتراک‌گذاری‌شده:</span>
@@ -669,6 +944,17 @@ export default function MessagesScreen() {
           </div>
         </div>
       )}
+
+      {/* Interactive Call & Meeting Modal */}
+      <CallModal
+        isOpen={callModalConfig.isOpen}
+        initialType={callModalConfig.type}
+        recipientName={thread.name}
+        recipientRole={thread.id === "support" ? "امور مالی و پشتیبانی قراردادها" : "مدیر ارشد پروژه و تیم مهندسی"}
+        onClose={() => setCallModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onCallEnded={handleCallEnded}
+        onMeetingScheduled={handleMeetingScheduled}
+      />
     </div>
   );
 }

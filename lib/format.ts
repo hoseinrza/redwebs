@@ -13,7 +13,7 @@ export function toPersianDigits(input: string | number | null | undefined): stri
 }
 
 /**
- * Formats a number with thousands separators and Persian digits (e.g. 8500000 -> "۸٬۵۰۰٬۰۰۰")
+ * Formats a number with thousands separators and Persian digits (e.g. 8500000 -> "۸٬۵۰۰٬۰۰۰ تومان")
  */
 export function formatPrice(
   amount: number | string | null | undefined,
@@ -21,13 +21,24 @@ export function formatPrice(
 ): string {
   if (amount === null || amount === undefined) return "";
   const numericAmount = typeof amount === "string" ? parseFloat(amount.replace(/[^0-9.-]+/g, "")) : amount;
-  if (isNaN(numericAmount)) return String(amount);
+  if (isNaN(numericAmount)) return toPersianDigits(amount);
   
-  const formattedWithCommas = Math.round(numericAmount).toLocaleString("fa-IR");
-  return currency ? `${formattedWithCommas} ${currency}` : formattedWithCommas;
+  // Format with standard commas then convert to Persian separators and digits
+  const parts = Math.round(numericAmount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "٬");
+  const persianFormatted = toPersianDigits(parts);
+  return currency ? `${persianFormatted} ${currency}` : persianFormatted;
+}
+
+/**
+ * Formats percentage numbers with Persian glyphs (e.g. 98 -> "۹۸٪")
+ */
+export function formatPercent(value: number | string | null | undefined): string {
+  if (value === null || value === undefined) return "";
+  return `${toPersianDigits(value)}٪`;
 }
 
 /**
  * Alias for toPersianDigits
  */
 export const toFa = toPersianDigits;
+

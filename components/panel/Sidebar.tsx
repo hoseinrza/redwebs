@@ -12,6 +12,8 @@ import {
   Sparkles,
   ShieldCheck,
   ChevronLeft,
+  Terminal,
+  ArrowRightLeft,
 } from "lucide-react";
 import { PortalScreen } from "@/components/panel/types";
 import { getInitials } from "@/components/panel/initials";
@@ -121,6 +123,22 @@ export default function Sidebar({
 
         {/* Bottom Profile & SLA Widget */}
         <div className="mt-auto flex flex-col gap-3">
+          {/* Switch to Admin & Dev Portal */}
+          <Link
+            href="/admin"
+            className="flex items-center justify-between gap-2 rounded-2xl bg-ink-950 hover:bg-ink-900 text-white p-3 text-xs font-bold transition-all shadow-xs border border-ink-800 group"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent-600 text-white shadow-2xs">
+                <Terminal className="h-3.5 w-3.5" />
+              </div>
+              <span>پنل تیم توسعه و ادمین</span>
+            </div>
+            <span className="rounded-md bg-accent-500/20 text-accent-400 px-1.5 py-0.5 text-[10px] font-mono">
+              Dev/CTO
+            </span>
+          </Link>
+
           {/* Active SLA Card */}
           <div className="rounded-2xl bg-gradient-to-br from-ink-950 to-ink-900 p-3.5 text-white shadow-xs space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold text-accent-400">
